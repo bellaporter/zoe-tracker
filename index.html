@@ -353,10 +353,12 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
   var SUPPS = [
     {k:'salt', n:'Salt', amt:'4 smidgens (1/8 tsp)', freq:'with each meal', perDay:0},
     {k:'ca', n:'Calcium', amt:'1 smidgen (= 1/4 of a 500 mg Tums)', freq:'every 12 hours', perDay:2},
-    {k:'k', n:'Renal K', amt:'1 smidgen (= 1/4 scoop)', freq:'once a day', perDay:1}
+    {k:'k', n:'Renal K', amt:'1 smidgen (= 1/4 scoop)', freq:'once a day', perDay:1},
+    // Vet recommendation (Nov 4): psyllium husk 1/4 tsp twice a day while she has diarrhea.
+    {k:'psy', n:'Psyllium husk', amt:'1/4 tsp, mixed into wet food', freq:'twice a day while she has diarrhea', perDay:2}
   ];
-  function suppCounts(events){ var c={salt:0, ca:0, k:0}; (events||[]).forEach(function(e){ (e.supps||[]).forEach(function(s){ if(c[s]!=null) c[s]++; }); }); return c; }
-  function suppStatus(events){ var c=suppCounts(events); return 'Today: salt with '+c.salt+(c.salt===1?' meal':' meals')+' · calcium '+c.ca+' of 2 · Renal K '+c.k+' of 1'; }
+  function suppCounts(events){ var c={salt:0, ca:0, k:0, psy:0}; (events||[]).forEach(function(e){ (e.supps||[]).forEach(function(s){ if(c[s]!=null) c[s]++; }); }); return c; }
+  function suppStatus(events){ var c=suppCounts(events); return 'Today: salt with '+c.salt+(c.salt===1?' meal':' meals')+' · calcium '+c.ca+' of 2 · Renal K '+c.k+' of 1 · psyllium '+c.psy+' of 2'; }
   var PORTIONS = [['cup14','1/4 cup'],['cup12','1/2 cup'],['cup1','1 cup']];
   var FOODS = [['dry','Dry food'],['wet','Wet food'],['chicken','Chicken + rice']];
   // Per level tablespoon (~15 g). Farmer's Dog Beef & Grain label: 1,300 kcal/kg (ME), protein 7% min, fat 4.5% min,
@@ -508,7 +510,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     if(e.type==='entyce') return {t:'Entyce', s:'Appetite stimulant dose', cls:''};
     if(e.type==='food' && e.items){
       var parts=[]; ITEMS.forEach(function(it){ if(e.items[it.k]) parts.push(tb(e.items[it.k])+' '+it.s); });
-      var sp=(e.supps||[]).map(function(k){ return k==='salt'?'salt':k==='ca'?'calcium':'Renal K'; });
+      var sp=(e.supps||[]).map(function(k){ return k==='salt'?'salt':k==='ca'?'calcium':k==='psy'?'psyllium':'Renal K'; });
       var main = parts.length ? parts.join(' + ')+' · '+macroLine(macros(e.items)) : 'Supplements only';
       return {t:'Food', s:main+(sp.length ? ' · with '+sp.join(', ') : ''), cls:''};
     }
