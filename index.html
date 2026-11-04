@@ -312,7 +312,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     <div class="chart" id="chProt"></div>
     <div class="chart" id="chFat"></div>
     <div class="chart" id="chCarb"></div>
-    <p class="er">Farmer's Dog Beef &amp; Grain and Chicken &amp; Grain both use their labels (1,300 kcal/kg, 7% protein, 4.5% fat) at about 15 g per tablespoon. Rice uses USDA values for cooked white rice. Only food logged in tablespoons is counted.</p>
+    <p class="er">Boiled chicken uses USDA values for plain skinless breast (about 14 kcal per tbsp). Farmer's Dog Beef &amp; Grain and Chicken &amp; Grain both use their labels (1,300 kcal/kg, 7% protein, 4.5% fat) at about 15 g per tablespoon. Rice uses USDA values for cooked white rice. Only food logged in tablespoons is counted.</p>
   </section>
 
   <section class="card" aria-labelledby="vrH" id="view-bloodwork" hidden>
@@ -366,6 +366,8 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     {k:'fd', n:"Farmer's Dog Beef & Grain", s:"FD beef", per:{kcal:19.5, protein:1.05, fat:0.68, carbs:1.5}, opts:[0.5,1,2,3,4]},
     // Chicken & Grain label: 1,300 kcal/kg, protein 7% min, fat 4.5% min, fiber 1.5% max, moisture 74.5% max.
     {k:'fdc', n:"Farmer's Dog Chicken & Grain", s:"FD chicken", per:{kcal:19.5, protein:1.05, fat:0.68, carbs:1.5}, opts:[0.5,1,2,3,4]},
+    // Boiled skinless chicken breast, shredded (USDA ~165 kcal/100 g, ~8.5 g per tbsp).
+    {k:'chk', n:'Boiled chicken (shredded, plain)', s:'chicken', per:{kcal:14, protein:2.6, fat:0.3, carbs:0}, opts:[0.5,1,2,3,4]},
     {k:'rice', n:'White rice (cooked)', s:'rice', per:{kcal:12.8, protein:0.27, fat:0.03, carbs:2.8}, opts:[0.5,1,2]}
   ];
   function itemDef(k){ for(var i=0;i<ITEMS.length;i++) if(ITEMS[i].k===k) return ITEMS[i]; return null; }
