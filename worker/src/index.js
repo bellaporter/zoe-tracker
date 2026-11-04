@@ -1,3 +1,4 @@
+// Deployed by .github/workflows/deploy-api.yml
 // Zoe's Tracker API: passcode sign-in, day logs, settings, photos, and web push reminders.
 // Storage: Cloudflare D1 (binding DB). Push: Web Push with VAPID + aes128gcm payload encryption.
 
