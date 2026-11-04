@@ -195,7 +195,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', function(){
-    if(!API || !getToken()) showLogin(); else readyResolve();
+    // Passcode is turned off (REQUIRE_PASSCODE in worker/wrangler.toml), so open straight away.
+    if(!API) showLogin(); else readyResolve();
     alertsCard();
     if('serviceWorker' in navigator && Notification && Notification.permission === 'granted') navigator.serviceWorker.register('sw.js').catch(function(){});
   });

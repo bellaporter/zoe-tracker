@@ -65,6 +65,7 @@ async function newSession(env) {
   return token;
 }
 async function authed(env, req, url) {
+  if (env.REQUIRE_PASSCODE !== 'true') return true;
   const h = req.headers.get('Authorization') || '';
   const token = h.startsWith('Bearer ') ? h.slice(7) : (url.searchParams.get('t') || '');
   if (!token) return false;
