@@ -1,0 +1,91 @@
+name: Deploy API
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'worker/**'
+      - '.github/workflows/deploy-api.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@3.114.0
+
+      - name: Deploy
+        id: deploy
+        working-directory: worker
+        run: |
+          set -o pipefail
+          LOG=../deploy-log.txt
+          : > "$LOG"
+          {
+            echo "== $(date -u) =="
+            echo "-- workers.dev subdomain"
+            SUB=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")
+            echo "$SUB" | sed 's/"result":{[^}]*}/"result":{...}/' | head -c 400; echo
+            NAME=$(echo "$SUB" | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);console.log((j.result&&j.result.subdomain)||"")}catch(e){console.log("")}})')
+            if [ -z "$NAME" ]; then
+              echo "registering subdomain"
+              curl -s -X PUT -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" \
+                --data '{"subdomain":"bellaporter"}' \
+                "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | head -c 400; echo
+            fi
+            echo "-- D1"
+            ID=$(wrangler d1 list --json 2>/dev/null | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const a=JSON.parse(s);const d=a.find(x=>x.name==="zoe");console.log(d?d.uuid:"")}catch(e){console.log("")}})')
+            if [ -z "$ID" ]; then
+              wrangler d1 create zoe
+              ID=$(wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s);const d=a.find(x=>x.name==="zoe");console.log(d?d.uuid:"")})')
+            fi
+            echo "database id found: $([ -n "$ID" ] && echo yes || echo no)"
+            sed -i "s/__D1_ID__/$ID/" wrangler.toml
+            wrangler d1 execute zoe --remote --file=schema.sql
+            echo "-- deploy"
+            wrangler deploy
+          } 2>&1 | tee -a "$LOG"
+          URL=$(grep -oE 'https://zoe-api\.[a-z0-9-]+\.workers\.dev' "$LOG" | head -1)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "API URL: $URL" | tee -a "$LOG"
+
+      - name: Save API address into the site
+        if: steps.deploy.outputs.url != ''
+        run: |
+          echo "window.ZOE_API = '${{ steps.deploy.outputs.url }}';" > config.js
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add config.js
+          git diff --cached --quiet || (git commit -m "Set API address" && git push)
+
+      - name: Publish deploy log
+        if: always()
+        run: |
+          [ -f deploy-log.txt ] || echo "deploy step did not run" > deploy-log.txt
+          cp deploy-log.txt /tmp/deploy-log.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin deploy-status || true
+          git checkout --orphan deploy-status-tmp
+          git rm -rf --cached . >/dev/null 2>&1 || true
+          cp /tmp/deploy-log.txt deploy-log.txt
+          git add deploy-log.txt
+          git commit -m "Deploy log ${{ github.run_id }} (${{ job.status }})"
+          git push -f origin HEAD:deploy-status

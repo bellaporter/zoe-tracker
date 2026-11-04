@@ -1,0 +1,16 @@
+name = "zoe-api"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zoe"
+database_id = "__D1_ID__"
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+ALLOWED_ORIGIN = "https://bellaporter.github.io"
+VAPID_SUBJECT = "https://bellaporter.github.io/zoe-tracker/"
