@@ -1,0 +1,100 @@
+== Thu Nov  5 02:25:05 UTC 2026 ==
+-- workers.dev subdomain
+{
+  "result": {
+    "subdomain": "bellaroseporter"
+  },
+  "success": true,
+  "errors": [],
+  "messages": []
+}
+
+-- D1
+database id found: yes
+
+ ⛅️ wrangler 3.114.0 (update available 4.157.0)
+-----------------------------------------------
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mThe version of Wrangler you are using is now out-of-date.[0m
+
+  Please update to the latest version to prevent critical errors.
+  Run `npm install --save-dev wrangler@4` to update to the latest version.
+  After installation, run Wrangler with `npx wrangler`.
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1m⚠️ This process may take some time, during which your D1 database will be unavailable to serve queries.[0m
+
+
+🌀 Executing on remote database zoe (a57ea90f-1afc-4605-840c-fb35d8ac08f4):
+🌀 To execute on your local development database, remove the --remote flag from your wrangler command.
+Note: if the execution fails to complete, your DB will return to its original state and you can safely retry.
+├ Checking if file needs uploading
+│
+🌀 File already uploaded. Processing.
+🌀 Starting import...
+🌀 Processed 7 queries.
+🚣 Executed 7 queries in 0.00 seconds (0 rows read, 0 rows written)
+   Database is currently at bookmark 00000004-0000000c-0000511a-8b2963e87c05ab81305bdedb151c1e0e.
+[
+  {
+    "results": [
+      {
+        "Total queries executed": 7,
+        "Rows read": 0,
+        "Rows written": 0,
+        "Database size (MB)": "1.16"
+      }
+    ],
+    "success": true,
+    "finalBookmark": "00000004-0000000c-0000511a-8b2963e87c05ab81305bdedb151c1e0e",
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "ENAM",
+      "served_by_colo": "ORD",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 2.5922
+      },
+      "duration": 2.5922,
+      "changes": 1,
+      "last_row_id": 0,
+      "changed_db": true,
+      "size_after": 1163264,
+      "rows_read": 0,
+      "rows_written": 0,
+      "num_tables": 7,
+      "total_attempts": 1
+    }
+  }
+]
+-- deploy
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+
+ ⛅️ wrangler 3.114.0 (update available 4.157.0)
+-----------------------------------------------
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mThe version of Wrangler you are using is now out-of-date.[0m
+
+  Please update to the latest version to prevent critical errors.
+  Run `npm install --save-dev wrangler@4` to update to the latest version.
+  After installation, run Wrangler with `npx wrangler`.
+
+
+Total Upload: 14.92 KiB / gzip: 4.55 KiB
+Your worker has access to the following bindings:
+- D1 Databases:
+  - DB: zoe (a57ea90f-1afc-4605-840c-fb35d8ac08f4)
+- Vars:
+  - ALLOWED_ORIGIN: "https://bellaporter.github.io"
+  - REQUIRE_PASSCODE: "false"
+  - TZ_NAME: "America/Los_Angeles"
+  - AM_MEDS_AT: "08:30"
+  - PM_MEDS_AT: "21:00"
+  - VAPID_SUBJECT: "https://bellaporter.github.io/zoe-tra..."
+Uploaded zoe-api (1.86 sec)
+Deployed zoe-api triggers (0.55 sec)
+  https://zoe-api.bellaroseporter.workers.dev
+  schedule: * * * * *
+Current Version ID: 1c7432d8-ef62-4caf-9fe6-bde1324605b4
+API URL: https://zoe-api.bellaroseporter.workers.dev
