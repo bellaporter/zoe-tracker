@@ -259,7 +259,32 @@ async function handle(req, env) {
   return json(env, req, { error: 'not_found' }, 404);
 }
 
+// Daily med reminders at fixed local times. Skipped if every med in that slot is already checked off.
+async function dailyMeds(env) {
+  const tz = env.TZ_NAME || 'America/Los_Angeles';
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date()).map(p => [p.type, p.value]));
+  const date = `${parts.year}-${parts.month}-${parts.day}`;
+  const nowMin = (+parts.hour % 24) * 60 + (+parts.minute);
+  const slots = [
+    { key: 'am', at: env.AM_MEDS_AT || '08:30', meds: ['entyce', 'furo', 'pimo'], title: 'Morning meds for Zoe', body: 'Time for Entyce, furosemide and pimobendan. Check them off in the tracker.' },
+    { key: 'pm', at: env.PM_MEDS_AT || '21:00', meds: ['furo', 'pimo'], title: 'Night meds for Zoe', body: 'Time for furosemide and pimobendan. Check them off in the tracker.' },
+  ];
+  for (const s of slots) {
+    const [h, m] = s.at.split(':').map(Number);
+    const diff = nowMin - (h * 60 + m);
+    if (diff < 0 || diff >= 30) continue;
+    const flag = `meds-${s.key}-${date}`;
+    if (await kvGet(env, flag)) continue;
+    await kvSet(env, flag, '1');
+    const row = await env.DB.prepare('SELECT data FROM days WHERE date = ?').bind(date).first();
+    const given = row ? (JSON.parse(row.data)[s.key] || {}) : {};
+    if (s.meds.every(k => given[k])) continue;
+    await pushAll(env, { title: s.title, body: s.body, tag: flag });
+  }
+}
+
 async function runReminders(env) {
+  await dailyMeds(env);
   const now = Date.now();
   const { results } = await env.DB.prepare('SELECT tag, at, title, body FROM reminders WHERE sent = 0 AND at <= ?').bind(now).all();
   for (const r of results || []) {

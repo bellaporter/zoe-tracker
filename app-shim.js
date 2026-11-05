@@ -149,7 +149,7 @@
         txt.textContent = standalone ? 'This phone does not support alerts from web apps. Update iOS to 16.4 or later.' : 'To get alerts, open this from the icon on your home screen (Share, then Add to Home Screen), then tap Turn on alerts.';
         on.hidden = true; return;
       }
-      if(Notification.permission === 'granted'){ txt.textContent = 'Alerts are on for this phone. You will get a ping 30 minutes after Entyce and on the last day of a food pack.'; on.textContent = 'Refresh alerts'; test.hidden = false; }
+      if(Notification.permission === 'granted'){ txt.textContent = 'Alerts are on for this phone: morning meds at 8:30 AM, night meds at 9 PM, a ping 30 minutes after Entyce, and the last day of a food pack.'; on.textContent = 'Refresh alerts'; test.hidden = false; }
       else if(Notification.permission === 'denied'){ txt.textContent = 'Alerts are blocked. Turn them on in iPhone Settings, Notifications, Zoe.'; on.hidden = true; }
       else txt.textContent = 'Get a ping when it is time to feed Zoe, even when your phone is locked.';
     }

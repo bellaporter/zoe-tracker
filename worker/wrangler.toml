@@ -14,4 +14,7 @@ crons = ["* * * * *"]
 [vars]
 ALLOWED_ORIGIN = "https://bellaporter.github.io"
 REQUIRE_PASSCODE = "false"
+TZ_NAME = "America/Los_Angeles"
+AM_MEDS_AT = "08:30"
+PM_MEDS_AT = "21:00"
 VAPID_SUBJECT = "https://bellaporter.github.io/zoe-tracker/"
