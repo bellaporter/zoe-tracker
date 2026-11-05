@@ -135,6 +135,9 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
 .addbtn{font:inherit;font-size:16px;font-weight:700;min-height:48px;border-radius:12px;border:0;background:var(--accent);color:var(--on-accent);cursor:pointer}
 .addbtn:disabled{opacity:.4;cursor:default}
 .log{display:flex;flex-direction:column}
+.entry .editbtn{font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:none;border:0;padding:6px 0 0;cursor:pointer;align-self:flex-start}
+.entry.editing{background:var(--accent-soft);border-radius:10px;padding-left:6px;padding-right:6px}
+.compose.editing{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
 .entry{display:grid;grid-template-columns:64px minmax(0,1fr) 44px;gap:8px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
 .entry:first-child{border-top:0}
 .entry .time{font-weight:700;font-variant-numeric:tabular-nums;font-size:14px;padding-top:2px}
@@ -260,6 +263,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
         <button type="button" class="linkbtn" id="nowBtn">Now</button>
       </div>
       <button type="button" class="addbtn" id="addEv" disabled>Add to log</button>
+      <button type="button" class="linkbtn" id="cancelEdit" hidden>Cancel editing</button>
     </div>
     <div class="log" id="log"><p class="empty">Nothing logged yet for this day.</p></div>
   </section>
@@ -502,7 +506,10 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     anyFood = anyFood || anySupp;
     $('poopPhotoField').hidden = !assets;
     var ok = ev.type==='pee' ? !!ev.where : ev.type==='poop' ? !!(ev.kind && ev.pwhere) : ev.type==='food' ? anyFood : !!$('noteText').value.trim();
-    $('addEv').disabled = !ok || !$('evTime').value;
+    $('addEv').textContent = editingId ? 'Save changes' : 'Add to log';
+    $('cancelEdit').hidden = !editingId;
+    document.querySelector('.compose').classList.toggle('editing', !!editingId);
+    $('addEv').disabled = !ok || (!$('evTime').value && !editingId);
   }
   function describe(e){
     if(e.type==='pee') return {t:'Pee', s:lab(PEE,e.where), cls: e.where==='inside'?'warn':''};
@@ -573,7 +580,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     if(!list.length){ var p=document.createElement('p'); p.className='empty'; p.textContent='Nothing logged yet for this day.'; box.appendChild(p); return; }
     list.forEach(function(e){
       var d = describe(e);
-      var row=document.createElement('div'); row.className='entry'+(d.cls?' '+d.cls:'');
+      var row=document.createElement('div'); row.className='entry'+(d.cls?' '+d.cls:'')+(e.id===editingId?' editing':'');
       var t=document.createElement('div'); t.className='time'; t.textContent=fmtTime(e.time);
       var w=document.createElement('div'); w.className='what';
       var a=document.createElement('span'); a.className='t'; a.textContent=d.t;
@@ -590,6 +597,11 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
         pi.addEventListener('change', function(){ var f=pi.files && pi.files[0]; if(!f) return; pl.firstChild.textContent='Uploading…';
           shrink(f).then(uploadPhoto).then(function(id){ state.events = state.events.map(function(o){ return o.id===e.id ? Object.assign({}, o, {photo:id}) : o; }); renderAll(); save(); }, function(err){ pl.firstChild.textContent='Add photo'; setStatus(photoError(err)); }); });
         pl.appendChild(pi); w.appendChild(pl);
+      }
+      if(['pee','poop','food','note'].indexOf(e.type)>=0){
+        var eb=document.createElement('button'); eb.type='button'; eb.className='editbtn'; eb.textContent = e.id===editingId ? 'Editing above' : 'Edit';
+        eb.setAttribute('aria-label','Edit '+d.t+' at '+fmtTime(e.time));
+        eb.addEventListener('click', function(){ startEdit(e); }); w.appendChild(eb);
       }
       var x=document.createElement('button'); x.type='button'; x.className='del'; x.textContent='×'; x.setAttribute('aria-label','Delete '+d.t+' at '+fmtTime(e.time));
       x.addEventListener('click', function(){ state.events = state.events.filter(function(o){ return o.id!==e.id; }); if(e.photo && assets) assets.delete(e.photo).catch(function(){}); renderAll(); save(); });
@@ -641,20 +653,44 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
   $('lbClose').addEventListener('click', function(){ $('lightbox').hidden=true; $('lbImg').removeAttribute('src'); });
   $('lightbox').addEventListener('click', function(e){ if(e.target===this){ this.hidden=true; $('lbImg').removeAttribute('src'); } });
 
+  // ---------- editing an existing entry ----------
+  var editingId = null;
+  function startEdit(e){
+    editingId = e.id;
+    ev = {type:e.type, where:'', kind:'', pwhere:'', amt:'', foods:{}, items:{}, supps:{}};
+    if(e.type==='pee') ev.where = e.where||'';
+    else if(e.type==='poop'){ ev.kind = e.kind||''; ev.pwhere = e.where||''; }
+    else if(e.type==='food'){ ev.items = Object.assign({}, e.items||{}); (e.supps||[]).forEach(function(k){ ev.supps[k]=true; }); }
+    $('noteText').value = e.type==='note' ? (e.text||'') : '';
+    $('evTime').value = e.time || '';
+    clearPending(); renderAll();
+    document.querySelector('.compose').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function endEdit(){
+    editingId = null;
+    ev = {type:ev.type, where:'', kind:'', pwhere:'', amt:'', foods:{}, items:{}, supps:{}};
+    $('noteText').value=''; $('evTime').value = nowHM(); clearPending(); renderAll();
+  }
+  $('cancelEdit').addEventListener('click', endEdit);
+
   $('addEv').addEventListener('click', function(){
-    var e = {id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), type: ev.type, time: $('evTime').value};
+    var old = editingId ? (state.events||[]).filter(function(o){ return o.id===editingId; })[0] : null;
+    var e = {id: old ? old.id : Date.now().toString(36)+Math.random().toString(36).slice(2,6), type: ev.type, time: $('evTime').value};
+    if(old && old.photo && ev.type==='poop') e.photo = old.photo;
     if(ev.type==='pee') e.where = ev.where;
     else if(ev.type==='poop'){ e.kind = ev.kind; e.where = ev.pwhere; }
     else if(ev.type==='food'){ e.items = {}; ITEMS.forEach(function(it){ if(ev.items[it.k]) e.items[it.k] = ev.items[it.k]; }); e.supps = SUPPS.filter(function(s){ return ev.supps[s.k]; }).map(function(s){ return s.k; }); }
     else e.text = $('noteText').value.trim();
     function commit(){
-      state.events = (state.events||[]).concat([e]);
+      if(old) state.events = (state.events||[]).map(function(o){ return o.id===old.id ? e : o; });
+      else state.events = (state.events||[]).concat([e]);
+      editingId = null;
       ev.where=''; ev.kind=''; ev.pwhere=''; ev.amt=''; ev.foods={}; ev.items={}; ev.supps={}; $('noteText').value=''; $('evTime').value = nowHM();
       clearPending(); renderAll(); save();
     }
     if(ev.type==='poop' && pendingPhoto && assets){
       var btn=$('addEv'); btn.disabled=true; btn.textContent='Uploading photo…';
-      uploadPhoto(pendingPhoto).then(function(id){ e.photo=id; btn.textContent='Add to log'; commit(); }, function(err){ btn.textContent='Add to log'; btn.disabled=false; setStatus(photoError(err)); });
+      uploadPhoto(pendingPhoto).then(function(id){ if(e.photo && e.photo!==id) assets.delete(e.photo).catch(function(){}); e.photo=id; commit(); }, function(err){ btn.textContent = editingId ? 'Save changes' : 'Add to log'; btn.disabled=false; setStatus(photoError(err)); });
     } else commit();
   });
 
