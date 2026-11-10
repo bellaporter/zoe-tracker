@@ -371,7 +371,8 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
   var ITEMS = [
     // Spot & Tango UnKibble Turkey + Sweet Potato: 4,367 kcal/kg, protein 25% min, fat 20% min, fiber 3% max, moisture 6% max.
     // Per level tablespoon estimated at ~6.6 g (dense freeze-dried pieces): ~29 kcal. Update if the bag lists kcal per cup.
-    {k:'st', n:'Spot & Tango UnKibble (Turkey + Sweet Potato)', s:'Spot & Tango', per:{kcal:29, protein:1.65, fat:1.3, carbs:2.6}, opts:[0.5,1,2,3,4]},
+    {k:'st', n:'Spot & Tango UnKibble (Turkey + Sweet Potato) · their scoop = ¼ cup', s:'Spot & Tango', per:{kcal:29, protein:1.65, fat:1.3, carbs:2.6}, opts:[1,2,3,4,6,8],
+      labels:{1:'¼ scoop',2:'½ scoop',3:'¾ scoop',4:'1 scoop',6:'1½ scoops',8:'2 scoops'}},
     // Retired: kept so older entries still count, but hidden from the food choices.
     {k:'fd', n:"Farmer's Dog Beef & Grain", s:"FD beef", hidden:true, per:{kcal:19.5, protein:1.05, fat:0.68, carbs:1.5}, opts:[0.5,1,2,3,4]},
     // Chicken & Grain label: 1,300 kcal/kg, protein 7% min, fat 4.5% min, fiber 1.5% max, moisture 74.5% max.
@@ -381,6 +382,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     {k:'rice', n:'White rice (cooked)', s:'rice', per:{kcal:12.8, protein:0.27, fat:0.03, carbs:2.8}, opts:[0.5,1,2]}
   ];
   function itemDef(k){ for(var i=0;i<ITEMS.length;i++) if(ITEMS[i].k===k) return ITEMS[i]; return null; }
+  function qtyLabel(it, q){ return (it.labels && it.labels[q]) || tb(q); }
   function tb(n){ return (n===0.5 ? '½' : n) + ' tbsp'; }
   function macros(items){
     var t={kcal:0, protein:0, fat:0, carbs:0};
@@ -488,7 +490,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
       var f=document.createElement('div'); f.className='field';
       var l=document.createElement('span'); l.className='lab'; l.textContent=it.n; f.appendChild(l);
       var c=document.createElement('div'); c.className='chips';
-      it.opts.forEach(function(q){ c.appendChild(chip(tb(q), ev.items[it.k]===q, '', function(){ ev.items[it.k] = ev.items[it.k]===q ? 0 : q; renderCompose(); })); });
+      it.opts.forEach(function(q){ c.appendChild(chip(qtyLabel(it, q), ev.items[it.k]===q, '', function(){ ev.items[it.k] = ev.items[it.k]===q ? 0 : q; renderCompose(); })); });
       f.appendChild(c); fr.appendChild(f);
     });
     var sf=document.createElement('div'); sf.className='field';
@@ -521,7 +523,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     if(e.type==='poop') return {t:'Poop', s:lab(POOP_KIND,e.kind)+' · '+lab(POOP_WHERE,e.where), cls: e.kind==='diarrhea'?'crit':((e.kind==='soft'||e.where==='indoor')?'warn':'')};
     if(e.type==='entyce') return {t:'Entyce', s:'Appetite stimulant dose', cls:''};
     if(e.type==='food' && e.items){
-      var parts=[]; ITEMS.forEach(function(it){ if(e.items[it.k]) parts.push(tb(e.items[it.k])+' '+it.s); });
+      var parts=[]; ITEMS.forEach(function(it){ if(e.items[it.k]) parts.push(qtyLabel(it, e.items[it.k])+' '+it.s); });
       var sp=(e.supps||[]).map(function(k){ return k==='salt'?'salt':k==='ca'?'calcium':k==='psy'?'psyllium':'Renal K'; });
       var main = parts.length ? parts.join(' + ')+' · '+macroLine(macros(e.items)) : 'Supplements only';
       return {t:'Food', s:main+(sp.length ? ' · with '+sp.join(', ') : ''), cls:''};
