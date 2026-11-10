@@ -316,7 +316,7 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
     <div class="chart" id="chProt"></div>
     <div class="chart" id="chFat"></div>
     <div class="chart" id="chCarb"></div>
-    <p class="er">Spot &amp; Tango UnKibble uses its published 4,367 kcal/kg at about 6.6 g per tablespoon (an estimate, about 29 kcal per tbsp). Boiled chicken uses USDA values for plain skinless breast (about 14 kcal per tbsp). Farmer's Dog Beef &amp; Grain and Chicken &amp; Grain both use their labels (1,300 kcal/kg, 7% protein, 4.5% fat) at about 15 g per tablespoon. Rice uses USDA values for cooked white rice. Only food logged in tablespoons is counted.</p>
+    <p class="er">Spot &amp; Tango UnKibble uses its published 4,367 kcal/kg and Zoe's scoop weight of 15 g (about 65 kcal per scoop). Boiled chicken uses USDA values for plain skinless breast (about 14 kcal per tbsp). Farmer's Dog Beef &amp; Grain and Chicken &amp; Grain both use their labels (1,300 kcal/kg, 7% protein, 4.5% fat) at about 15 g per tablespoon. Rice uses USDA values for cooked white rice. Only food logged in tablespoons is counted.</p>
   </section>
 
   <section class="card" aria-labelledby="vrH" id="view-bloodwork" hidden>
@@ -370,8 +370,8 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
   // Cooked white rice: USDA, 1 cup = 158 g = 205 kcal.
   var ITEMS = [
     // Spot & Tango UnKibble Turkey + Sweet Potato: 4,367 kcal/kg, protein 25% min, fat 20% min, fiber 3% max, moisture 6% max.
-    // Per level tablespoon estimated at ~6.6 g (dense freeze-dried pieces): ~29 kcal. Update if the bag lists kcal per cup.
-    {k:'st', n:'Spot & Tango UnKibble (Turkey + Sweet Potato) · their scoop = ¼ cup', s:'Spot & Tango', per:{kcal:29, protein:1.65, fat:1.3, carbs:2.6}, opts:[1,2,3,4,6,8],
+    // Zoe's custom scoop weighs 15 g = 65.5 kcal. Units below are quarter-scoops (3.75 g each).
+    {k:'st', n:'Spot & Tango UnKibble (Turkey + Sweet Potato) · their scoop = ¼ cup', s:'Spot & Tango', per:{kcal:16.4, protein:0.94, fat:0.75, carbs:1.46}, opts:[1,2,3,4,6,8],
       labels:{1:'¼ scoop',2:'½ scoop',3:'¾ scoop',4:'1 scoop',6:'1½ scoops',8:'2 scoops'}},
     // Retired: kept so older entries still count, but hidden from the food choices.
     {k:'fd', n:"Farmer's Dog Beef & Grain", s:"FD beef", hidden:true, per:{kcal:19.5, protein:1.05, fat:0.68, carbs:1.5}, opts:[0.5,1,2,3,4]},
