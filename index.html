@@ -350,18 +350,19 @@ input:focus-visible,textarea:focus-visible,button:focus-visible,.med:focus-withi
   ];
   var PM = [
     {k:'furo', n:'Furosemide', d:'0.4 mL · shake well'},
-    {k:'pimo', n:'Pimobendan', d:'0.3 mL · shake well'}
+    {k:'pimo', n:'Pimobendan', d:'0.3 mL · shake well'},
+    {k:'ca', n:'Calcium (evening dose)', d:'1 smidgen dissolved in a little water, by syringe'}
   ];
   // From the LAASER discharge (Nov 1): salt 1/8 tsp with each meal; Tums 500 mg 1/4 tablet every 12 hours;
   // Renal K about 1/4 scoop once daily (scoop = 1/8 tsp). Smidgen = 1/32 tsp.
   var SUPPS = [
     {k:'salt', n:'Salt', amt:'4 smidgens (1/8 tsp)', freq:'with each meal', perDay:0},
-    {k:'ca', n:'Calcium', amt:'1 smidgen (= 1/4 of a 500 mg Tums)', freq:'every 12 hours', perDay:2},
+    {k:'ca', n:'Calcium', amt:'1 smidgen (= 1/4 of a 500 mg Tums)', freq:'every 12 hours · the evening dose is in night meds', perDay:2},
     {k:'k', n:'Renal K', amt:'1 smidgen (= 1/4 scoop)', freq:'once a day', perDay:1},
     // Vet recommendation (Nov 4): psyllium husk 1/4 tsp twice a day for 3-5 days to get through the diarrhea.
     {k:'psy', n:'Psyllium husk', amt:'1/4 tsp, mixed into wet food', freq:'twice a day for 3–5 days (started Nov 4, through Nov 6–8)', perDay:2}
   ];
-  function suppCounts(events){ var c={salt:0, ca:0, k:0, psy:0}; (events||[]).forEach(function(e){ (e.supps||[]).forEach(function(s){ if(c[s]!=null) c[s]++; }); }); return c; }
+  function suppCounts(events){ var c={salt:0, ca:(state.pm && state.pm.ca) ? 1 : 0, k:0, psy:0}; (events||[]).forEach(function(e){ (e.supps||[]).forEach(function(s){ if(c[s]!=null) c[s]++; }); }); return c; }
   function suppStatus(events){ var c=suppCounts(events); return 'Today: salt with '+c.salt+(c.salt===1?' meal':' meals')+' · calcium '+c.ca+' of 2 · Renal K '+c.k+' of 1 · psyllium '+c.psy+' of 2'; }
   var PORTIONS = [['cup14','1/4 cup'],['cup12','1/2 cup'],['cup1','1 cup']];
   var FOODS = [['dry','Dry food'],['wet','Wet food'],['chicken','Chicken + rice']];

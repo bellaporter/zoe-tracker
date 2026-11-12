@@ -267,7 +267,7 @@ async function dailyMeds(env) {
   const nowMin = (+parts.hour % 24) * 60 + (+parts.minute);
   const slots = [
     { key: 'am', at: env.AM_MEDS_AT || '08:30', meds: ['entyce', 'furo', 'pimo'], title: 'Morning meds for Zoe', body: 'Time for Entyce, furosemide and pimobendan. Check them off in the tracker.' },
-    { key: 'pm', at: env.PM_MEDS_AT || '21:00', meds: ['furo', 'pimo'], title: 'Night meds for Zoe', body: 'Time for furosemide and pimobendan. Check them off in the tracker.' },
+    { key: 'pm', at: env.PM_MEDS_AT || '21:00', meds: ['furo', 'pimo', 'ca'], title: 'Night meds for Zoe', body: 'Time for furosemide, pimobendan and her evening calcium (1 smidgen in water). Check them off in the tracker.' },
   ];
   for (const s of slots) {
     const [h, m] = s.at.split(':').map(Number);
